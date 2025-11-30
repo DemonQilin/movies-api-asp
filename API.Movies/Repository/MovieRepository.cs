@@ -37,12 +37,17 @@ namespace API.Movies.Repository
 
         public async Task<Movie?> GetMovieAsync(int movieId)
         {
-            return await _context.Movies.AsNoTracking().FirstOrDefaultAsync(m => m.Id == movieId);
+            return await _context.Movies.AsNoTracking()
+                .Include(m => m.Category)
+                .FirstOrDefaultAsync(m => m.Id == movieId);
         }
 
         public async Task<ICollection<Movie>> GetMoviesAsync()
         {
-            return await _context.Movies.AsNoTracking().OrderBy(m => m.Name).ToListAsync();
+            return await _context.Movies.AsNoTracking()
+                .Include(m => m.Category)
+                .OrderBy(m => m.Name)
+                .ToListAsync();
         }
 
         public async Task<bool> MovieExistsAsync(string name)

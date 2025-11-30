@@ -16,5 +16,9 @@ namespace API.Movies.DAL.Models.Dtos
         [Required(ErrorMessage = "The clasification is required")]
         [MaxLength(10, ErrorMessage = "The clasification cannot exceed 10 characters")]
         public string Clasification { get; set; }
+
+        [Required(ErrorMessage = "The categoryId is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "The categoryId is required")]
+        public int CategoryId { get; set; }
     }
 }

@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Movies.Repository
 {
     public class CategoryRepository : ICaregoryRepository
-
-
     {
         private readonly ApplicationDbContext _context;
 
@@ -66,6 +64,7 @@ namespace API.Movies.Repository
         {
             return _context.Categories
                 .AsNoTracking()
+                .Include(c => c.Movies)
                 .FirstOrDefaultAsync(c => c.Id == categoryId);
         }
 

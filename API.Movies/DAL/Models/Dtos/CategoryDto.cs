@@ -14,5 +14,7 @@ namespace API.Movies.DAL.Models.Dtos
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
+
+
     }
 }

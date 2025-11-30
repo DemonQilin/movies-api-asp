@@ -42,7 +42,7 @@ namespace API.Movies.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<CategoryDto>> GetCategoryAsync(int id)
+        public async Task<ActionResult<CategoryDetailDto>> GetCategoryAsync(int id)
         {
             var category = await _categoryService.GetCategoryAsync(id);
             if (category == null)
@@ -167,6 +167,7 @@ namespace API.Movies.Controllers
         [HttpDelete("{id:int}", Name = "DeleteCategoryAsync")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CategoryDto>> DeleteCategoryAsync(int id)
         {
@@ -179,6 +180,10 @@ namespace API.Movies.Controllers
             catch (InvalidOperationException e) when (e.Message.Contains("not exist"))
             {
                 return NotFound(e.Message);
+            }
+            catch (InvalidOperationException e) when (e.Message.Contains("has movies"))
+            {
+                return Conflict(e.Message);
             }
             catch (Exception e)
             {

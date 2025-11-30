@@ -8,20 +8,29 @@ namespace API.Movies.Services
 {
     public class MovieService : IMovieService
     {
+        private readonly ICaregoryRepository _categoryRepository;
         private readonly IMovieRepository _movieRepository;
         private readonly IMapper _mapper;
 
-        public MovieService(IMovieRepository movieRepository, IMapper mapper)
+        public MovieService(ICaregoryRepository categoryRepository, IMovieRepository movieRepository, IMapper mapper)
         {
+            _categoryRepository = categoryRepository;
             _movieRepository = movieRepository;
             _mapper = mapper;
         }
 
         public async Task<MovieDto> CreateMovieAsync(MovieCreateDto movieDto)
         {
-            if (await _movieRepository.MovieExistsAsync(movieDto.Name))
+            var movieExists = await _movieRepository.MovieExistsAsync(movieDto.Name);
+            if (movieExists)
             {
                 throw new InvalidOperationException($"Movie with name {movieDto.Name} already exists");
+            }
+
+            var categoryExists = await _categoryRepository.CategoryExistsByIdAsync(movieDto.CategoryId);
+            if (!categoryExists)
+            {
+                throw new InvalidOperationException($"Category with id {movieDto.CategoryId} does not exist");
             }
 
             var movie = _mapper.Map<Movie>(movieDto);
@@ -48,10 +57,10 @@ namespace API.Movies.Services
             return true;
         }
 
-        public async Task<MovieDto?> GetMovieAsync(int movieId)
+        public async Task<MovieDetailDto?> GetMovieAsync(int movieId)
         {
             var movie = await _movieRepository.GetMovieAsync(movieId);
-            return _mapper.Map<MovieDto>(movie);
+            return _mapper.Map<MovieDetailDto>(movie);
         }
 
         public async Task<ICollection<MovieDto>> GetMoviesAsync()

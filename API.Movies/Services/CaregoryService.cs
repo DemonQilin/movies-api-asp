@@ -37,6 +37,11 @@ namespace API.Movies.Services
                 throw new InvalidOperationException($"Category with id {categoryId} does not exist");
             }
 
+            if (category.Movies.Count > 0)
+            {
+                throw new InvalidOperationException($"Category with id {categoryId} has movies");
+            }
+
             var wasDeleted = await _categoryRepository.DeleteCategoryAsync(categoryId);
             if (!wasDeleted)
             {
@@ -53,10 +58,10 @@ namespace API.Movies.Services
             return _mapper.Map<ICollection<CategoryDto>>(categories);
         }
 
-        public async Task<CategoryDto?> GetCategoryAsync(int categoryId)
+        public async Task<CategoryDetailDto?> GetCategoryAsync(int categoryId)
         {
             var category = await _categoryRepository.GetCategoryAsync(categoryId);
-            return _mapper.Map<CategoryDto>(category);
+            return _mapper.Map<CategoryDetailDto>(category);
         }
 
         public async Task<CategoryDto> UpdateCategoryAsync(int categoryId, CategoryCreateDto categoryDto)
