@@ -11,9 +11,22 @@ namespace API.Movies.Services
         private readonly ICaregoryRepository _categoryRepository = categoryRepository;
         private readonly IMapper _mapper = mapper;
 
-        public Task<bool> AddCategoryAsync(Category category)
+        public async Task<CategoryDto> AddCategoryAsync(CategoryCreateDto categoryDto)
         {
-            throw new NotImplementedException();
+            var categoryExists = await _categoryRepository.CategoryExistsByNameAsync(categoryDto.Name);
+            if (categoryExists)
+            {
+                throw new InvalidOperationException($"Category with name {categoryDto.Name} already exists");
+            }
+
+            var category = _mapper.Map<Category>(categoryDto);
+            var wasCreated = await _categoryRepository.AddCategoryAsync(category);
+            if (!wasCreated)
+            {
+                throw new Exception($"Category with name {categoryDto.Name} could not be created");
+            }
+
+            return _mapper.Map<CategoryDto>(category);
         }
 
         public Task<bool> CategoryExistsByIdAsync(int categoryId)
