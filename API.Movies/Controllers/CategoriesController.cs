@@ -47,7 +47,7 @@ namespace API.Movies.Controllers
             var category = await _categoryService.GetCategoryAsync(id);
             if (category == null)
             {
-                return NotFound();
+                return NotFound($"Category with id {id} does not exist");
             }
 
             return Ok(category);
@@ -150,6 +150,40 @@ namespace API.Movies.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
-    }
 
+        /// <summary>
+        /// Delete a category
+        /// </summary>
+        /// <param name="id">Id of the category to delete</param>
+        /// <returns>The deleted category</returns>
+        /// <response code="200">Returns the deleted category</response>
+        /// <response code="404">If the category was not found</response>
+        /// <response code="500">If an error occurred</response>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     DELETE /api/categories/1
+        /// </remarks>
+        [HttpDelete("{id:int}", Name = "DeleteCategoryAsync")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CategoryDto>> DeleteCategoryAsync(int id)
+        {
+            try
+            {
+                var deletedCategory = await _categoryService.DeleteCategoryAsync(id);
+
+                return Ok(deletedCategory);
+            }
+            catch (InvalidOperationException e) when (e.Message.Contains("not exist"))
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+    }
 }

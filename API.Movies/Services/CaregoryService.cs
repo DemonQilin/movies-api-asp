@@ -29,19 +29,21 @@ namespace API.Movies.Services
             return _mapper.Map<CategoryDto>(category);
         }
 
-        public Task<bool> CategoryExistsByIdAsync(int categoryId)
+        public async Task<bool> DeleteCategoryAsync(int categoryId)
         {
-            throw new NotImplementedException();
-        }
+            var category = await _categoryRepository.GetCategoryAsync(categoryId);
+            if (category == null)
+            {
+                throw new InvalidOperationException($"Category with id {categoryId} does not exist");
+            }
 
-        public Task<bool> CategoryExistsByNameAsync(string name)
-        {
-            throw new NotImplementedException();
-        }
+            var wasDeleted = await _categoryRepository.DeleteCategoryAsync(categoryId);
+            if (!wasDeleted)
+            {
+                throw new Exception($"Category with id {categoryId} could not be deleted");
+            }
 
-        public Task<bool> DeleteCategoryAsync(int categoryId)
-        {
-            throw new NotImplementedException();
+            return true;
         }
 
         public async Task<ICollection<CategoryDto>> GetCategoriesAsync()
