@@ -5,7 +5,7 @@ namespace API.Movies.Repository.IRepository
     public interface ICaregoryRepository
     {
         Task<ICollection<Category>> GetCategoriesAsync();
-        Task<Category> GetCategoryAsync(int categoryId);
+        Task<Category?> GetCategoryAsync(int categoryId);
         Task<bool> CategoryExistsByIdAsync(int categoryId);
         Task<bool> CategoryExistsByNameAsync(string name);
         Task<bool> AddCategoryAsync(Category category);
