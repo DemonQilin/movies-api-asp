@@ -38,9 +38,10 @@ namespace API.Movies.Services
             return _mapper.Map<ICollection<CategoryDto>>(categories);
         }
 
-        public Task<CategoryDto?> GetCategoryAsync(int categoryId)
+        public async Task<CategoryDto?> GetCategoryAsync(int categoryId)
         {
-            throw new NotImplementedException();
+            var category = await _categoryRepository.GetCategoryAsync(categoryId);
+            return _mapper.Map<CategoryDto>(category);
         }
 
         public Task<bool> UpdateCategoryAsync(Category category)
