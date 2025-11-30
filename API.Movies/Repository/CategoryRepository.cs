@@ -18,7 +18,10 @@ namespace API.Movies.Repository
 
         public async Task<bool> AddCategoryAsync(Category category)
         {
-            category.CreatedAt = DateTime.UtcNow;
+            var currentDate = DateTime.UtcNow;
+
+            category.CreatedAt = currentDate;
+            category.UpdatedAt = currentDate;
 
             await _context.Categories.AddAsync(category);
             return await SaveAsync();
