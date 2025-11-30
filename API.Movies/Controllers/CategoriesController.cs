@@ -10,6 +10,10 @@ namespace API.Movies.Controllers
     {
         private readonly ICategoryService _categoryService = categoryService;
 
+        /// <summary>
+        /// Get all categories
+        /// </summary>
+        /// <returns>A list of categories</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
