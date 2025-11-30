@@ -91,5 +91,60 @@ namespace API.Movies.Services
 
             return _mapper.Map<MovieDto>(movie);
         }
+
+        public async Task<MovieDto> UpdateMoviePartialAsync(int movieId, MoviePartialUpdateDto movieDto)
+        {
+            if (movieDto.Name == null && movieDto.Duration == null && movieDto.Description == null && movieDto.Clasification == null && movieDto.CategoryId == null)
+            {
+                throw new ArgumentException("At least one property must be provided for update");
+            }
+
+            var movie = await _movieRepository.GetMovieAsync(movieId);
+            if (movie == null)
+            {
+                throw new InvalidOperationException($"Movie with id {movieId} does not exist");
+            }
+
+            if (movieDto.Name != null)
+            {
+                if (await _movieRepository.MovieExistsAsync(movieDto.Name) && movie.Name != movieDto.Name)
+                {
+                    throw new InvalidOperationException($"Movie with name {movieDto.Name} already exists");
+                }
+                movie.Name = movieDto.Name;
+            }
+
+            if (movieDto.Duration != null)
+            {
+                movie.Duration = movieDto.Duration.Value;
+            }
+
+            if (movieDto.Description != null)
+            {
+                movie.Description = movieDto.Description;
+            }
+
+            if (movieDto.Clasification != null)
+            {
+                movie.Clasification = movieDto.Clasification;
+            }
+
+            if (movieDto.CategoryId != null)
+            {
+                var categoryExists = await _categoryRepository.CategoryExistsByIdAsync(movieDto.CategoryId.Value);
+                if (!categoryExists)
+                {
+                    throw new InvalidOperationException($"Category with id {movieDto.CategoryId} does not exist");
+                }
+                movie.CategoryId = movieDto.CategoryId.Value;
+            }
+
+            if (!await _movieRepository.UpdateMovieAsync(movie))
+            {
+                throw new Exception($"Something went wrong when updating the movie {movie.Name}");
+            }
+
+            return _mapper.Map<MovieDto>(movie);
+        }
     }
 }

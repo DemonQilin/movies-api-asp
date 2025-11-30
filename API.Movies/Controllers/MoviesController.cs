@@ -132,6 +132,48 @@ namespace API.Movies.Controllers
         }
 
         /// <summary>
+        /// Partially update a movie
+        /// </summary>
+        /// <param name="id">Id of the movie to update</param>
+        /// <param name="movieDto">Movie properties to update</param>
+        /// <returns>The updated movie</returns>
+        [HttpPatch("{id:int}", Name = "UpdateMoviePartialAsync")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<MovieDto>> UpdateMoviePartialAsync(int id, [FromBody] MoviePartialUpdateDto movieDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var updatedMovie = await _movieService.UpdateMoviePartialAsync(id, movieDto);
+                return Ok(updatedMovie);
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (InvalidOperationException e) when (e.Message.Contains("not exist"))
+            {
+                return NotFound(e.Message);
+            }
+            catch (InvalidOperationException e) when (e.Message.Contains("exists"))
+            {
+                return Conflict(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        /// <summary>
         /// Delete a movie
         /// </summary>
         /// <param name="id">Id of the movie to delete</param>

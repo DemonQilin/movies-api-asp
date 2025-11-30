@@ -37,7 +37,7 @@ namespace API.Movies.Repository
 
         public async Task<Movie?> GetMovieAsync(int movieId)
         {
-            return await _context.Movies.AsNoTracking()
+            return await _context.Movies
                 .Include(m => m.Category)
                 .FirstOrDefaultAsync(m => m.Id == movieId);
         }
