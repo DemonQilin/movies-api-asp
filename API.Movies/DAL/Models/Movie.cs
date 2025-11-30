@@ -16,5 +16,8 @@ namespace API.Movies.DAL.Models
         [Required]
         [MaxLength(10)]
         public string Clasification { get; set; }
+
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
     }
 }
