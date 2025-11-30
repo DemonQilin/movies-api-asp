@@ -57,9 +57,28 @@ namespace API.Movies.Services
             return _mapper.Map<CategoryDto>(category);
         }
 
-        public Task<bool> UpdateCategoryAsync(Category category)
+        public async Task<CategoryDto> UpdateCategoryAsync(int categoryId, CategoryCreateDto categoryDto)
         {
-            throw new NotImplementedException();
+            var category = await _categoryRepository.GetCategoryAsync(categoryId);
+            if (category == null)
+            {
+                throw new InvalidOperationException($"Category with id {categoryId} does not exist");
+            }
+
+            var nameExists = await _categoryRepository.CategoryExistsByNameAsync(categoryDto.Name);
+            if (nameExists)
+            {
+                throw new InvalidOperationException($"Category with name {categoryDto.Name} already exists");
+            }
+
+            _mapper.Map(categoryDto, category);
+            var wasUpdated = await _categoryRepository.UpdateCategoryAsync(category);
+            if (!wasUpdated)
+            {
+                throw new Exception($"Category with id {categoryId} could not be updated");
+            }
+
+            return _mapper.Map<CategoryDto>(category);
         }
     }
 }

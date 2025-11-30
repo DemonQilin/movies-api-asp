@@ -14,7 +14,7 @@ namespace API.Movies.Controllers
         /// Get all categories
         /// </summary>
         /// <returns>A list of categories</returns>
-        [HttpGet]
+        [HttpGet(Name = "GetCategoriesAsync")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -69,12 +69,12 @@ namespace API.Movies.Controllers
         ///         "name": "New Category"
         ///     }
         /// </remarks>
-        [HttpPost]
+        [HttpPost(Name = "AddCategoryAsync")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CategoryDto>> AddCategoryAsync([FromBody] CategoryCreateDto categoryCreateDto)
+        public async Task<ActionResult<CategoryDto>> AddCategoryAsync([FromBody] CategoryCreateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -83,7 +83,7 @@ namespace API.Movies.Controllers
 
             try
             {
-                var addedCategory = await _categoryService.AddCategoryAsync(categoryCreateDto);
+                var addedCategory = await _categoryService.AddCategoryAsync(dto);
 
                 return CreatedAtRoute(
                     "GetCategoryAsync",
@@ -100,5 +100,56 @@ namespace API.Movies.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
+
+        /// <summary>
+        /// Update a category
+        /// </summary>
+        /// <param name="id">Id of the category to update</param>
+        /// <param name="category">Category to update</param>
+        /// <returns>The updated category</returns>
+        /// <response code="200">Returns the updated category</response>
+        /// <response code="400">If the category is not valid</response>
+        /// <response code="404">If the category was not found</response>
+        /// <response code="500">If an error occurred</response>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     PUT /api/categories/1
+        ///     {
+        ///         "name": "Updated Category"
+        ///     }
+        /// </remarks>
+        [HttpPut("{id:int}", Name = "UpdateCategoryAsync")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CategoryDto>> UpdateCategoryAsync(int id, [FromBody] CategoryCreateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var updatedCategory = await _categoryService.UpdateCategoryAsync(id, dto);
+
+                return Ok(updatedCategory);
+            }
+            catch (InvalidOperationException e) when (e.Message.Contains("not exist"))
+            {
+                return NotFound(e.Message);
+            }
+            catch (InvalidOperationException e) when (e.Message.Contains("exists"))
+            {
+                return Conflict(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
     }
+
 }
